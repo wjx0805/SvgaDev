@@ -5,6 +5,7 @@ import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.SoundPool
 import android.os.Build
+import android.util.Log
 import com.opensource.svgaplayer.bitmap.SVGABitmapByteArrayDecoder
 import com.opensource.svgaplayer.bitmap.SVGABitmapFileDecoder
 import com.opensource.svgaplayer.entities.SVGAAudioEntity
@@ -27,6 +28,7 @@ class SVGAVideoEntity {
     private val TAG = "SVGAVideoEntity"
 
     var antiAlias = true
+    var key: String=""
     var movieItem: MovieEntity? = null
 
     var videoSize = SVGARect(0.0, 0.0, 0.0, 0.0)
@@ -34,7 +36,7 @@ class SVGAVideoEntity {
 
     var FPS = 15
         private set
-
+    var refrenceCount=0
     var frames: Int = 0
         private set
 
@@ -66,7 +68,17 @@ class SVGAVideoEntity {
         }
         resetSprites(json)
     }
-
+    fun refrenceCountAdd(){
+        refrenceCount++
+        Log.d("testSvga","refrenceCountAdd key:$key,$refrenceCount")
+    }
+    fun refrenceCountDecrement(){
+        refrenceCount--
+        Log.d("testSvga","refrenceCountDecrement key:$key,$refrenceCount")
+        if(refrenceCount==0){
+            clear()
+        }
+    }
     private fun setupByJson(movieObject: JSONObject) {
         movieObject.optJSONObject("viewBox")?.let { viewBoxObject ->
             val width = viewBoxObject.optDouble("width", 0.0)
@@ -338,6 +350,22 @@ class SVGAVideoEntity {
             soundCallback = null
         }
         soundPool?.release()
+
+    }
+
+    fun release() {
+        if (SVGASoundManager.isInit()) {
+            this.audioList.forEach {
+                it.soundID?.let { id -> SVGASoundManager.unload(id) }
+            }
+            soundCallback = null
+        }
+        soundPool?.release()
+
+        if(refrenceCount>0){
+            return
+        }
+
         soundPool = null
         audioList = emptyList()
         spriteList = emptyList()

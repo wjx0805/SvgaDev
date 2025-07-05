@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.http.HttpResponseCache
 import android.os.Handler
 import android.os.Looper
+import com.opensource.svgaplayer.SvgaCacheManager.SvgaLoadListener
 import com.opensource.svgaplayer.proto.MovieEntity
 import com.opensource.svgaplayer.utils.log.LogUtils
 import org.json.JSONObject
@@ -23,7 +24,7 @@ private var fileLock: Any = 0
 private var isUnzipping = false
 
 class SVGAParser(context: Context?) {
-    private var mContext = context?.applicationContext
+    var mContext = context?.applicationContext
 
     init {
         SVGACache.onCreate(context)
@@ -132,12 +133,35 @@ class SVGAParser(context: Context?) {
     fun init(context: Context) {
         mContext = context.applicationContext
         SVGACache.onCreate(mContext)
+        SvgaCacheManager.getInstance().initMemoryCallBack(mContext)
     }
 
     fun setFrameSize(frameWidth: Int, frameHeight: Int) {
         mFrameWidth = frameWidth
         mFrameHeight = frameHeight
     }
+
+    fun decodeFromAssets2(
+        name: String,
+        callback: SvgaLoadListener?
+    ) {
+        if (mContext == null) {
+            LogUtils.error(TAG, "在配置 SVGAParser context 前, 无法解析 SVGA 文件。")
+            return
+        }
+        mContext?.let {
+            SvgaCacheManager.getInstance().loadSvgaResource(name,name,object :SvgaLoadListener{
+                override fun onLoadSuccess(drawable: SVGAVideoEntity) {
+                    callback?.onLoadSuccess(drawable)
+                }
+
+                override fun onLoadFailed(error: String) {
+                    callback?.onLoadFailed(error)
+                }
+            })
+        }
+    }
+
 
     fun decodeFromAssets(
         name: String,
@@ -319,6 +343,7 @@ class SVGAParser(context: Context?) {
                                 mFrameWidth,
                                 mFrameHeight
                             )
+                            videoItem.key = cacheKey
                             LogUtils.info(TAG, "SVGAVideoEntity prepare start")
                             videoItem.prepare({
                                 LogUtils.info(TAG, "SVGAVideoEntity prepare success")

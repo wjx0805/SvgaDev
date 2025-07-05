@@ -24,7 +24,7 @@ import com.opensource.svgaplayer.entities.SVGAVideoShapeEntity
  * Created by cuiminghui on 2017/3/29.
  */
 
-internal class SVGACanvasDrawer(videoItem: SVGAVideoEntity, val dynamicItem: SVGADynamicEntity) : SGVADrawer(videoItem) {
+internal class SVGACanvasDrawer(videoItem: SVGAVideoEntity?=null, val dynamicItem: SVGADynamicEntity) : SGVADrawer(videoItem) {
 
     private val sharedValues = ShareValues()
     private val drawTextCache: HashMap<String, Bitmap> = hashMapOf()
@@ -165,14 +165,14 @@ internal class SVGACanvasDrawer(videoItem: SVGAVideoEntity, val dynamicItem: SVG
     }
 
     private fun playAudio(frameIndex: Int) {
-        this.videoItem.audioList.forEach { audio ->
+        this.videoItem?.audioList?.forEach { audio ->
             if (audio.startFrame == frameIndex) {
                 if (SVGASoundManager.isInit()) {
                     audio.soundID?.let { soundID ->
                         audio.playID = SVGASoundManager.play(soundID)
                     }
                 } else {
-                    this.videoItem.soundPool?.let { soundPool ->
+                    this.videoItem?.soundPool?.let { soundPool ->
                         audio.soundID?.let { soundID ->
                             audio.playID = soundPool.play(soundID, 1.0f, 1.0f, 1, 0, 1.0f)
                         }
@@ -185,7 +185,7 @@ internal class SVGACanvasDrawer(videoItem: SVGAVideoEntity, val dynamicItem: SVG
                     if (SVGASoundManager.isInit()) {
                         SVGASoundManager.stop(it)
                     } else {
-                        this.videoItem.soundPool?.stop(it)
+                        this.videoItem?.soundPool?.stop(it)
                     }
                 }
                 audio.playID = null
@@ -214,12 +214,15 @@ internal class SVGACanvasDrawer(videoItem: SVGAVideoEntity, val dynamicItem: SVG
             return
         }
         val bitmapKey = if (imageKey.endsWith(".matte")) imageKey.substring(0, imageKey.length - 6) else imageKey
-        val drawingBitmap = (dynamicItem.dynamicImage[bitmapKey] ?: videoItem.imageMap[bitmapKey])
+        val drawingBitmap = (dynamicItem.dynamicImage[bitmapKey] ?: videoItem?.imageMap[bitmapKey])
             ?: return
         val frameMatrix = shareFrameMatrix(sprite.frameEntity.transform)
         val paint = this.sharedValues.sharedPaint()
-        paint.isAntiAlias = videoItem.antiAlias
-        paint.isFilterBitmap = videoItem.antiAlias
+        videoItem?.antiAlias?.let {
+            paint.isAntiAlias = it
+            paint.isFilterBitmap = it
+        }
+
         paint.alpha = (sprite.frameEntity.alpha * 255).toInt()
         if (sprite.frameEntity.maskPath != null) {
             val maskPath = sprite.frameEntity.maskPath ?: return
@@ -332,7 +335,7 @@ internal class SVGACanvasDrawer(videoItem: SVGAVideoEntity, val dynamicItem: SVG
         }
         textBitmap?.let {
             val paint = this.sharedValues.sharedPaint()
-            paint.isAntiAlias = videoItem.antiAlias
+            paint.isAntiAlias = videoItem?.antiAlias?:false
             paint.alpha = (sprite.frameEntity.alpha * 255).toInt()
             if (sprite.frameEntity.maskPath != null) {
                 val maskPath = sprite.frameEntity.maskPath ?: return@let
@@ -346,7 +349,7 @@ internal class SVGACanvasDrawer(videoItem: SVGAVideoEntity, val dynamicItem: SVG
                 canvas.drawPath(path, paint)
                 canvas.restore()
             } else {
-                paint.isFilterBitmap = videoItem.antiAlias
+                paint.isFilterBitmap =  paint.isAntiAlias
                 canvas.drawBitmap(it, frameMatrix, paint)
             }
         }
@@ -359,7 +362,9 @@ internal class SVGACanvasDrawer(videoItem: SVGAVideoEntity, val dynamicItem: SVG
             shape.shapePath?.let {
                 val paint = this.sharedValues.sharedPaint()
                 paint.reset()
-                paint.isAntiAlias = videoItem.antiAlias
+                videoItem?.antiAlias?.let {
+                    paint.isAntiAlias =it
+                }
                 paint.alpha = (sprite.frameEntity.alpha * 255).toInt()
                 val path = this.sharedValues.sharedPath()
                 path.reset()

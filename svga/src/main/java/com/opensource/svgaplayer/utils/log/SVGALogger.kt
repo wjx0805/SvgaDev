@@ -6,7 +6,7 @@ package com.opensource.svgaplayer.utils.log
 object SVGALogger {
 
     private var mLogger: ILogger? = DefaultLogCat()
-    private var isLogEnabled = false
+    private var isLogEnabled = true
 
     /**
      * log 接管注入

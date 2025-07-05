@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import com.opensource.svgaplayer.drawer.SVGACanvasDrawer
 
-class SVGADrawable(val videoItem: SVGAVideoEntity, val dynamicItem: SVGADynamicEntity) : Drawable() {
+class SVGADrawable(var videoItem: SVGAVideoEntity?=null, val dynamicItem: SVGADynamicEntity) : Drawable() {
 
     constructor(videoItem: SVGAVideoEntity) : this(videoItem, SVGADynamicEntity())
 
@@ -53,52 +53,54 @@ class SVGADrawable(val videoItem: SVGAVideoEntity, val dynamicItem: SVGADynamicE
     }
 
     fun resume() {
-        videoItem.audioList.forEach { audio ->
+        videoItem?.audioList?.forEach { audio ->
             audio.playID?.let {
                 if (SVGASoundManager.isInit()) {
                     SVGASoundManager.resume(it)
                 } else {
-                    videoItem.soundPool?.resume(it)
+                    videoItem?.soundPool?.resume(it)
                 }
             }
         }
     }
 
     fun pause() {
-        videoItem.audioList.forEach { audio ->
+        videoItem?.audioList?.forEach { audio ->
             audio.playID?.let {
                 if (SVGASoundManager.isInit()) {
                     SVGASoundManager.pause(it)
                 } else {
-                    videoItem.soundPool?.pause(it)
+                    videoItem?.soundPool?.pause(it)
                 }
             }
         }
     }
 
     fun stop() {
-        videoItem.audioList.forEach { audio ->
+        videoItem?.audioList?.forEach { audio ->
             audio.playID?.let {
                 if (SVGASoundManager.isInit()) {
                     SVGASoundManager.stop(it)
                 } else {
-                    videoItem.soundPool?.stop(it)
+                    videoItem?.soundPool?.stop(it)
                 }
             }
         }
     }
 
     fun clear() {
-        videoItem.audioList.forEach { audio ->
+        videoItem?.audioList?.forEach { audio ->
             audio.playID?.let {
                 if (SVGASoundManager.isInit()) {
                     SVGASoundManager.stop(it)
                 } else {
-                    videoItem.soundPool?.stop(it)
+                    videoItem?.soundPool?.stop(it)
                 }
             }
             audio.playID = null
         }
-        videoItem.clear()
+        videoItem?.refrenceCountDecrement()
+        videoItem?.clear()
+        videoItem =null
     }
 }

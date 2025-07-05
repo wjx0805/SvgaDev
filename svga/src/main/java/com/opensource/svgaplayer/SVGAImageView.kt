@@ -140,10 +140,11 @@ open class SVGAImageView @JvmOverloads constructor(
     private fun play(range: SVGARange?, reverse: Boolean) {
         LogUtils.info(TAG, "================ start animation ================")
         val drawable = getSVGADrawable() ?: return
+        val videoItem = drawable.videoItem ?:return
         setupDrawable()
         mStartFrame = Math.max(0, range?.location ?: 0)
-        val videoItem = drawable.videoItem
-        mEndFrame = Math.min(videoItem.frames - 1, ((range?.location ?: 0) + (range?.length ?: Int.MAX_VALUE) - 1))
+
+        mEndFrame = Math.min(videoItem?.frames?:0 - 1, ((range?.location ?: 0) + (range?.length ?: Int.MAX_VALUE) - 1))
         val animator = ValueAnimator.ofInt(mStartFrame, mEndFrame)
         animator.interpolator = LinearInterpolator()
         animator.duration = ((mEndFrame - mStartFrame + 1) * (1000 / videoItem.FPS) / generateScale()).toLong()
@@ -194,8 +195,9 @@ open class SVGAImageView @JvmOverloads constructor(
 
     private fun onAnimatorUpdate(animator: ValueAnimator?) {
         val drawable = getSVGADrawable() ?: return
+        var videoItem = drawable.videoItem ?: return
         drawable.currentFrame = animator?.animatedValue as Int
-        val percentage = (drawable.currentFrame + 1).toDouble() / drawable.videoItem.frames.toDouble()
+        val percentage = (drawable.currentFrame + 1).toDouble() / videoItem.frames.toDouble()
         callback?.onStep(drawable.currentFrame, percentage)
     }
 
@@ -250,9 +252,16 @@ open class SVGAImageView @JvmOverloads constructor(
     }
 
     fun setVideoItem(videoItem: SVGAVideoEntity?, dynamicItem: SVGADynamicEntity?) {
+        getSVGADrawable()?.let {
+            if(it.videoItem?.key ==videoItem?.key){
+                return
+            }
+           clear()
+        }
         if (videoItem == null) {
             setImageDrawable(null)
         } else {
+            videoItem.refrenceCountAdd()
             val drawable = SVGADrawable(videoItem, dynamicItem ?: SVGADynamicEntity())
             drawable.cleared = true
             setImageDrawable(drawable)
@@ -266,17 +275,26 @@ open class SVGAImageView @JvmOverloads constructor(
         if (andPlay) {
             startAnimation()
             mAnimator?.let {
-                it.currentPlayTime = (Math.max(0.0f, Math.min(1.0f, (frame.toFloat() / drawable.videoItem.frames.toFloat()))) * it.duration).toLong()
+                drawable.videoItem?.let { videoItem->
+                    it.currentPlayTime = (Math.max(0.0f, Math.min(1.0f, (frame.toFloat() / videoItem.frames.toFloat()))) * it.duration).toLong()
+                }
+
             }
         }
     }
 
     fun stepToPercentage(percentage: Double, andPlay: Boolean) {
         val drawable = drawable as? SVGADrawable ?: return
-        var frame = (drawable.videoItem.frames * percentage).toInt()
-        if (frame >= drawable.videoItem.frames && frame > 0) {
-            frame = drawable.videoItem.frames - 1
+        var frame=drawable.videoItem?.let {
+            var frame = (it.frames * percentage).toInt()
+            if (frame >= it.frames && frame > 0) {
+                frame = it.frames - 1
+            }
+            frame
+        }?:run {
+            0
         }
+
         stepToFrame(frame, andPlay)
     }
 
