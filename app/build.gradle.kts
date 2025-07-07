@@ -5,6 +5,7 @@ plugins {
 
 android {
     namespace = "com.andtest.svgadev"
+
     compileSdk = 35
 
     defaultConfig {
@@ -47,6 +48,7 @@ dependencies {
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(project(":svga"))
+//    implementation("com.github.wjx0805:SvgaDev:v1.0.01")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

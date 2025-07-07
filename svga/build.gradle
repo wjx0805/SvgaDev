@@ -9,8 +9,8 @@ afterEvaluate {
         publications {
             mavenJava(MavenPublication) {
                 from components.release
-                groupId = 'com.github.shengwang520'
-                artifactId = 'SVGA-ktx'
+                groupId = 'com.github.wjx0805'
+                artifactId = 'SvgaDev'
                 version = "1.0.01"
             }
         }
