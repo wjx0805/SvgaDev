@@ -14,9 +14,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        maven {
-            setUrl("https://raw.githubusercontent.com/wjx0805/Svgadev/RELEASE_TAG/")
-        }
+        maven { setUrl("https://jitpack.io") }
         google()
         mavenCentral()
     }
