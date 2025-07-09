@@ -33,13 +33,13 @@ class MainActivity : AppCompatActivity() {
         }
         adapter.submitList(datas)
 
-        SVGAParser.shareParser().decodeFromAssets2("test.svga",object :SvgaLoadListener{
-            override fun onLoadSuccess(videoItem: SVGAVideoEntity) {
+        SVGAParser.shareParser().decodeFromAssets2("test.svga",object :SVGAParser.ParseCompletion{
+            override fun onComplete(videoItem: SVGAVideoEntity) {
                 binding.svga.setVideoItem(videoItem)
                 binding.svga.stepToFrame(0, true)
             }
 
-            override fun onLoadFailed(error: String) {
+            override fun onError() {
             }
 
         })

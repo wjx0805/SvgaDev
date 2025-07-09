@@ -33,13 +33,13 @@ class SvgaAdapter : ListAdapter<String, RecyclerView.ViewHolder>(DataDiffUtils()
 //                 override fun onError() {
 //                 }
 //             })
-             SVGAParser.shareParser().decodeFromAssets2("test.svga",object :SvgaLoadListener{
-                 override fun onLoadSuccess(videoItem: SVGAVideoEntity) {
+             SVGAParser.shareParser().decodeFromAssets("test.svga",object :SVGAParser.ParseCompletion{
+                 override fun onComplete(videoItem: SVGAVideoEntity) {
                      kkk_view_lll.get()?.setVideoItem(videoItem)
                      kkk_view_lll.get()?.stepToFrame(0, true)
                  }
 
-                 override fun onLoadFailed(error: String) {
+                 override fun onError() {
                  }
 
              })

@@ -141,9 +141,9 @@ class SVGAParser(context: Context?) {
         mFrameHeight = frameHeight
     }
 
-    fun decodeFromAssets2(
+    fun decodeFromAssets(
         name: String,
-        callback: SvgaLoadListener?
+        callback: ParseCompletion?
     ) {
         if (mContext == null) {
             LogUtils.error(TAG, "在配置 SVGAParser context 前, 无法解析 SVGA 文件。")
@@ -152,18 +152,18 @@ class SVGAParser(context: Context?) {
         mContext?.let {
             SvgaCacheManager.getInstance().loadSvgaResource(name,name,object :SvgaLoadListener{
                 override fun onLoadSuccess(drawable: SVGAVideoEntity) {
-                    callback?.onLoadSuccess(drawable)
+                    callback?.onComplete(drawable)
                 }
 
                 override fun onLoadFailed(error: String) {
-                    callback?.onLoadFailed(error)
+                    callback?.onError()
                 }
             })
         }
     }
 
 
-    fun decodeFromAssets(
+    fun decodeFromAssets2(
         name: String,
         callback: ParseCompletion?,
         playCallback: PlayCallback? = null
@@ -377,7 +377,7 @@ class SVGAParser(context: Context?) {
      */
     @Deprecated("This method has been deprecated from 2.4.0.", ReplaceWith("this.decodeFromAssets(assetsName, callback)"))
     fun parse(assetsName: String, callback: ParseCompletion?) {
-        this.decodeFromAssets(assetsName, callback, null)
+        this.decodeFromAssets(assetsName, callback)
     }
 
     /**

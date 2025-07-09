@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 
     implementation(project(":svga"))
-//    implementation("com.github.wjx0805:SvgaDev:v1.0.02")
+//    implementation("com.github.wjx0805:SvgaDev:1.0.00")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
